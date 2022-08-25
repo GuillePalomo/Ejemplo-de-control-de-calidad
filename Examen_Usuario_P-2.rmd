@@ -1,0 +1,189 @@
+---
+title: CdC Examen Final / Ene-22 P-2
+subtitle: "Alumno: `r Sys.info()[names(Sys.info())=='login']`" 
+author: "Sistema: `r Sys.info()[names(Sys.info())=='nodename']`"   
+date: "Fecha: `r format(Sys.time(), '%A, %d %B, %Y, %X')`"
+output: 
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+## Alumno: 100430523     
+### Nombre y Apellidos : Guillermo Palomo Fernandez  
+
+## Enunciado
+```{r warning=FALSE,message=FALSE}
+library(FrF2)
+library(unrepx)
+library(readr)
+datos <- read_csv("Datos2p.csv")
+
+```
+
+```{r}
+
+datos <- as.data.frame(datos)
+
+TratOE <- c("(1)","a","b","ab","c","ac","bc","abc","d","ad","bd","abd","cd","acd","bcd","abcd","e","ae","be","abe","ce","ace","bce","abce","de","ade","bde","abde","cde","acde","bcde","abcde","f","af","bf","abf","cf","acf","bcf","abcf","df","adf","bdf","abdf","cdf","acdf","bcdf","abcdf","ef","aef","bef","abef","cef","acef","bcef","abcef","def","adef","bdef","abdef","cdef","acdef","bcdef","abcdef")
+datos <- datos[match(TratOE,datos$Tratamiento),]
+rownames(datos) <- 1:nrow(datos)
+Y <- datos$Datos
+
+```
+
+
+
+```{r}
+
+Tabla <- FrF2(nfactors = 6, nruns = 64, replications = 1, randomize = F)
+
+Tabla <- add.response(design = Tabla, response = Y)
+Tabla
+
+```
+
+Pasamos ahora a la gráfica de los efectos principales.
+
+```{r}
+
+MP <- MEPlot(Tabla)
+
+```
+
+Cuanto mayor sea la pendiente, mayor es el efecto del factor.
+
+```{r}
+
+MP
+
+```
+
+```{r}
+
+MP[2, ] - MP[1, ]
+
+```
+
+Las diferencias en valor absoluto dan A = 33.5625, B = 0.5000, C = 0, D = 0, E = 10 y F = 11.75.
+En el test lo ponemos en orden ascendente A,F,E,B,C,D.
+
+```{r}
+
+DanielPlot(fit = Tabla, half = T,code = T, autolab = FALSE)
+
+```
+
+Los significativos son A,E,F,A:F.
+
+```{r}
+
+efectos <- yates(Y)
+efectos
+
+```
+
+
+```{r}
+
+Modelo <- with(Tabla, lm(Y~(A+B+C+D+E+F)^2))
+sa <-summary(aov(Modelo))
+sa
+
+```
+
+```{r}
+
+Modelo
+
+```
+
+```{r}
+summary(Modelo)
+```
+
+Confirmamos que los sigificativos son los mismos.
+
+```{r}
+modelo2<-with(Tabla, lm(Y~(A*F+E)))
+anova2<-aov(modelo2)
+summary(anova2)
+```
+
+```{r}
+
+(18023+2209+1600+992)/(18023+2209+1600+992+108)
+
+```
+
+
+```{r}
+summary(modelo2)
+```
+
+El R^2 es de 0.995 y coincide con el cálculo a mano
+
+```{r}
+
+trata <- c("(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc","(1)","a","b","ab","c","ac","bc","abc")
+
+datosfinal <- data.frame(trata,Y)
+
+
+sum(datosfinal$Y[datosfinal$trata == "(1)"])
+sum(datosfinal$Y[datosfinal$trata == "a"])
+sum(datosfinal$Y[datosfinal$trata == "b"])
+sum(datosfinal$Y[datosfinal$trata == "ab"])
+sum(datosfinal$Y[datosfinal$trata == "c"])
+sum(datosfinal$Y[datosfinal$trata == "ac"])
+sum(datosfinal$Y[datosfinal$trata == "bc"])
+sum(datosfinal$Y[datosfinal$trata == "abc"])
+
+
+```
+
+
+```{r}
+
+tablaN <- FrF2(nruns = 8, nfactors = 3,factor.names = list(A=c(-1,1),E=c(-1,1),F=c(-1,1)), replications = 8, randomize = FALSE)
+tablaN <- add.response(design = tablaN, response = Y)
+tablaN
+
+```
+
+
+
+```{r}
+modelo1<-with(tablaN, lm(Y~(A+E+F)^2))
+anova1<-aov(modelo1)
+summary(anova1)
+```
+
+```{r}
+modelo1
+```
+
+
+```{r}
+summary(modelo1)
+```
+
+
+Con el nuevo modelo sale significativo A con gl 57 y sse 4901.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

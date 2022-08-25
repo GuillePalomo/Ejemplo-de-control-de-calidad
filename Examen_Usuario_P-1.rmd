@@ -1,0 +1,173 @@
+---
+title: CdC Examen Final / Ene-22 P-1
+subtitle: "Alumno: `r Sys.info()[names(Sys.info())=='login']`" 
+author: "Sistema: `r Sys.info()[names(Sys.info())=='nodename']`"   
+date: "Fecha: `r format(Sys.time(), '%A, %d %B, %Y, %X')`"
+output: 
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+## Alumno: 100430523      
+### Nombre y Apellidos : Guillermo Palomo Fernandez    
+
+## Enunciado
+
+
+
+```{r warning=FALSE,message=FALSE}
+
+library(qcc)
+
+```
+
+Organizamos los datos para trabajar con ellos.
+
+```{r warning=FALSE,message=FALSE}
+
+library(readr)
+datos <- read_csv("Datos_p1.csv")
+datos <- as.data.frame(datos)
+index <- 1:nrow(datos)
+
+```
+
+
+```{r}
+alfa <- 0.01
+za <- round(qnorm(1-alfa/2),3)
+```
+
+
+Creamos el primer gráfico con las muestras iniciales.
+
+
+```{r}
+
+
+q1 <- with(datos, qcc(D, sizes = n, type = "p", nsigmas = za)) 
+
+plot(q1)
+
+```
+
+```{r}
+
+q1$violations
+z <- q1$violations
+z[is.na(z)] <- 0
+names(z) <- 1:length(z)
+names(z[z==1])
+fuera<- as.numeric(names(z[z==1]))
+fuera
+
+```
+
+
+```{r}
+
+index2 <- index[-fuera]
+datos2 <- datos[index2,]
+
+q2 <- with(datos2, qcc(D, sizes = n, type = "p",nsigmas = za))
+plot(q2)
+
+```
+
+```{r}
+
+operarios <- rep(rep(1:4, c(4,4,4,4)),3)
+datos$operarios <- operarios
+datos$muestra <- 1:nrow(datos)
+operarios
+
+```
+
+Vemos que la muestra 11, que es la primera disconforme, es del operario 3 por lo que eliminamos todas las muestras del operario 3 y la 26 y 44.
+
+
+```{r}
+
+
+fuera2 <- datos$muestra[datos$operarios==3]
+fuera<- c(fuera2)
+fuera
+
+```
+
+Vemos que las muestras disconformes que conocíamos son todas del operario 3 y procedemos a su eliminación. 
+
+
+```{r}
+
+index3 <- index[-fuera]
+datos3 <- datos[index3,]
+
+q3 <- with(datos3, qcc(D, sizes = n, type = "p",nsigmas = za))
+plot(q3)
+
+```
+
+```{r}
+
+q3$violations
+z <- q3$violations
+z[is.na(z)] <- 0
+names(z) <- 1:length(z)
+z <- as.numeric(names(z[z==1]))
+fuera3 <- index3[z]
+fuera<- c(fuera3, fuera)
+fuera
+```
+
+
+
+```{r}
+
+index4 <- index[-fuera]
+datos4 <- datos[index4,]
+
+q4 <- with(datos4, qcc(D, sizes = n, type = "p",nsigmas = za))
+plot(q4)
+
+```
+
+Las muestras eliminadas finalmente son 9 10 11 12 25 26 27 28 41 42 43 44  2. EL proceso está BAJO CONTROL.
+
+```{r}
+
+var <- round(0.158*(1-0.158)/35,3)
+var
+
+```
+
+```{r}
+datose <- read_csv("Datos_p1E.csv")
+datos4x <- datos4[,c(-3,-4)]
+
+ndatos <- rbind(datos4x,datose)
+q5 <- with(ndatos, qcc(D[1:35], sizes = n[1:35], type = "p", nsigmas = za, newdata = D[36:nrow(ndatos)], newsizes = n[36:nrow(ndatos)]))
+plot(q5)
+```
+
+Estos datos tienen otras dimensiones y deberían estudiarse a parte. El gráfico conjunto queda fuera de control.
+
+
+```{r}
+
+var2 <- round(0.158*(1-0.158)/51,3)
+var2
+
+```
+
+
+
+
+
+
+
+
+

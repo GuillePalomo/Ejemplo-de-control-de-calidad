@@ -1,0 +1,127 @@
+---
+title: CdC Examen Final / Ene-22 P-3
+subtitle: "Alumno: `r Sys.info()[names(Sys.info())=='login']`" 
+author: "Sistema: `r Sys.info()[names(Sys.info())=='nodename']`"   
+date: "Fecha: `r format(Sys.time(), '%A, %d %B, %Y, %X')`"
+output: 
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+## Alumno: 100430523     
+### Nombre y Apellidos  : Guillermo Palomo Fernandez   
+
+## Enunciado
+```{r warning=FALSE,message=FALSE}
+
+library(psych)
+library(Hmisc)
+library(PerformanceAnalytics) 
+library(corpcor)
+library(corrplot) 
+
+```
+
+
+
+
+```{r}
+
+library(haven)
+ndatos <- read_sav("3227.sav")
+datos <- ndatos[,c(47,48,49,50,51,52,110,111,112,113)]
+
+datos<-na.omit(datos)
+ mcor<-round(cor(datos) , 3)
+ mcor
+```
+
+```{r}
+det(mcor) 
+```
+
+El determinante de la matriz es de 0.096.
+
+
+```{r}
+cortest.bartlett(datos)
+```
+
+La chisq es de 1966.591.
+
+
+```{r}
+
+kmo.t<-KMO(mcor)
+kmo.t
+
+```
+
+El KMO es de 0.72.
+
+```{r}
+
+chart.Correlation(datos, histogram=TRUE, pch=19)
+
+```
+
+El 82% son significativos.
+
+
+```{r}
+auto<-eigen(mcor)
+autovalores<-round(auto$values, 3)
+A<-as.matrix(auto$vectors)
+n<-length(autovalores) # número de variables
+varianzas<-round(autovalores/n, 3)
+```
+
+```{r}
+NumFactores<-sum(autovalores>1)
+cat("El número de factores es: ", NumFactores, "\n")
+```
+
+```{r}
+# Número de factores
+colores<-c("darksalmon","darkolivegreen1")
+bp<-barplot(autovalores, col=colores[(autovalores>1)+1])
+abline(h=1, col="red")
+text(x=bp,y=autovalores-0.1, labels = autovalores, col="blue")
+text(x=bp,y=rep(0,7), labels = cumsum(varianzas), col="red")
+```
+
+
+Se explica el 56.4% de la variabilidad con esos 3 factores y si cogemos los 2 primeros el 45%.
+
+
+
+```{r}
+rotacion<-"none"
+
+AF<-factanal(datos, factors =NumFactores, rotation =rotacion,scores = "regression")
+
+plot(loadings(AF)[,1:2], type="n", xlim=c(-1,1), ylim=c(-1,1), main=paste0("rotación: ",rotacion))
+abline(v=0) # añade una línea vertical en x=0
+abline(h=0) # añade una línea horizontal en y=0
+text(loadings(AF)[,1:2],labels=rownames(loadings(AF)[,1:2]),cex=.9, col="blue") 
+```
+
+
+```{r}
+rotacion<-"promax"
+
+AF<-factanal(datos, factors =NumFactores, rotation =rotacion,scores = "regression")
+
+plot(loadings(AF)[,1:2], type="n", xlim=c(-1,1), ylim=c(-1,1), main=paste0("rotación: ",rotacion))
+abline(v=0) # añade una línea vertical en x=0
+abline(h=0) # añade una línea horizontal en y=0
+text(loadings(AF)[,1:2],labels=rownames(loadings(AF)[,1:2]),cex=.9, col="blue") 
+```
+
+
+
+
+
